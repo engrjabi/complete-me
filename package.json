@@ -1,22 +1,19 @@
 {
-	"name": "app-name",
-	"productName": "App Name",
-	"version": "0.0.0",
-	"description": "The best app ever",
+	"name": "complete-me",
+	"productName": "Complete Me",
+	"version": "0.0.1",
+	"description": "Helps you with autocomplete text on any application. Stores suggestion locally",
 	"license": "MIT",
-	"repository": "sindresorhus/electron-boilerplate",
+	"homepage": "https://github.com/engrjabi?tab=repositories",
 	"author": {
-		"name": "Your Name",
-		"email": "user@gmail.com",
-		"url": "https://sindresorhus.com"
+		"name": "engrjabi",
+		"email": "engr.jabi@gmail.com"
 	},
 	"scripts": {
 		"postinstall": "electron-builder install-app-deps",
-		"lint": "xo",
-		"test": "npm run lint",
 		"start": "electron .",
 		"pack": "electron-builder --dir",
-		"dist": "electron-builder --macos --linux --windows",
+		"dist": "electron-builder --linux",
 		"release": "np"
 	},
 	"dependencies": {
@@ -46,9 +43,9 @@
 		"releaseDraft": false
 	},
 	"build": {
-		"appId": "com.company.AppName",
+		"appId": "com.engrjabi.CompleteMe",
 		"mac": {
-			"category": "public.app-category.social-networking",
+			"category": "public.app-category.utilities",
 			"darkModeSupport": true
 		},
 		"dmg": {
@@ -71,7 +68,7 @@
 				"AppImage",
 				"deb"
 			],
-			"category": "Network;Chat"
+			"category": "Utilities"
 		}
 	}
 }
