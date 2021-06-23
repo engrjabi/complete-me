@@ -1,18 +1,67 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 	<head>
-		<meta charset="utf-8">
+		<meta charset="utf-8" />
 		<title>Electron boilerplate</title>
-		<link rel="stylesheet" href="index.css">
+		<link rel="stylesheet" href="index.css" />
 	</head>
 	<body>
 		<div class="container">
-			<header>
-				<h1>Electron boilerplate</h1>
-				<p></p>
-			</header>
-			<section class="main"></section>
-			<footer></footer>
+			<form id="form">
+				<input type="text" id="country" />
+			</form>
 		</div>
+
+		<script>
+			const autocomplete = require("autocompleter");
+			const { exec } = require("child_process");
+
+			const countries = [
+				{ label: "United Kingdom", value: "UK" },
+				{ label: "United States", value: "US" },
+			];
+
+			const input = document.getElementById("country");
+
+			function logSubmit(event) {
+				event.preventDefault();
+				console.log(event);
+				console.log(input.value);
+			}
+
+			const form = document.getElementById("form");
+			form.addEventListener("submit", logSubmit);
+
+			autocomplete({
+				input: input,
+				fetch: function (text, update) {
+					text = text.toLowerCase();
+					// you can also use AJAX requests instead of preloaded data
+					const suggestions = countries.filter((n) =>
+						n.label.toLowerCase().startsWith(text)
+					);
+					update(suggestions);
+				},
+				onSelect: function (item) {
+					input.value = item.label;
+					console.log(item);
+
+					exec(
+						`xdotool keydown alt key Tab key Left key Left; sleep 0.3; xdotool keyup alt && sleep 0.3 && xdotool type ${item.label}`,
+						(error, data, getter) => {
+							if (error) {
+								console.log("error", error.message);
+								return;
+							}
+							if (getter) {
+								console.log("data", data);
+								return;
+							}
+							console.log("data", data);
+						}
+					);
+				},
+			});
+		</script>
 	</body>
 </html>
