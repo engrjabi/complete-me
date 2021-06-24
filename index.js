@@ -26,61 +26,75 @@ app.setAppUserModelId("com.company.AppName");
 // Prevent window from being garbage collected
 let mainWindow;
 
-const createMainWindow = async () => {
-	const win = new BrowserWindow({
-		title: app.name,
-		show: false,
-		width: 200,
-		height: 200,
-		webPreferences: {
-			nodeIntegration: true,
-			contextIsolation: false,
-		},
-	});
+const gotTheLock = app.requestSingleInstanceLock();
 
-	win.on("ready-to-show", () => {
-		win.show();
-	});
-
-	win.on("closed", () => {
-		// Dereference the window
-		// For multiple windows store them in an array
-		mainWindow = undefined;
-	});
-
-	await win.loadFile(path.join(__dirname, "index.html"));
-
-	return win;
-};
-
-// Prevent multiple instances of the app
-if (!app.requestSingleInstanceLock()) {
+if (!gotTheLock) {
 	app.quit();
-}
-
-app.on("second-instance", () => {
-	if (mainWindow) {
-		if (mainWindow.isMinimized()) {
-			mainWindow.restore();
+} else {
+	app.on("second-instance", (event, commandLine, workingDirectory) => {
+		// Someone tried to run a second instance, we should focus our window.
+		if (mainWindow) {
+			if (mainWindow.isMinimized()) mainWindow.restore();
+			mainWindow.focus();
 		}
+	});
 
-		mainWindow.show();
-	}
-});
+	const createMainWindow = async () => {
+		const win = new BrowserWindow({
+			title: app.name,
+			show: false,
+			width: 200,
+			height: 200,
+			webPreferences: {
+				nodeIntegration: true,
+				contextIsolation: false,
+			},
+		});
 
-app.on("window-all-closed", () => {
-	if (!is.macos) {
+		win.on("ready-to-show", () => {
+			win.show();
+		});
+
+		win.on("closed", () => {
+			// Dereference the window
+			// For multiple windows store them in an array
+			mainWindow = undefined;
+		});
+
+		await win.loadFile(path.join(__dirname, "index.html"));
+
+		return win;
+	};
+
+	// Prevent multiple instances of the app
+	if (!app.requestSingleInstanceLock()) {
 		app.quit();
 	}
-});
 
-app.on("activate", async () => {
-	if (!mainWindow) {
+	app.on("second-instance", () => {
+		if (mainWindow) {
+			if (mainWindow.isMinimized()) {
+				mainWindow.restore();
+			}
+
+			mainWindow.show();
+		}
+	});
+
+	app.on("window-all-closed", () => {
+		if (!is.macos) {
+			app.quit();
+		}
+	});
+
+	app.on("activate", async () => {
+		if (!mainWindow) {
+			mainWindow = await createMainWindow();
+		}
+	});
+
+	(async () => {
+		await app.whenReady();
 		mainWindow = await createMainWindow();
-	}
-});
-
-(async () => {
-	await app.whenReady();
-	mainWindow = await createMainWindow();
-})();
+	})();
+}
