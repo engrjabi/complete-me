@@ -2,28 +2,69 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<title>Electron boilerplate</title>
+		<title>Complete Me</title>
 		<link rel="stylesheet" href="index.css" />
 	</head>
 	<body>
 		<div class="container">
+			<div>
+				<button id="completion-box__db-button" onclick="handleDbButton()">
+					Show DB
+				</button>
+			</div>
+			<div>
+				<textarea id="completion-box__db-data"></textarea>
+			</div>
 			<form id="completion-box__form">
 				<input type="text" id="completion-box__input" autofocus />
 			</form>
 		</div>
 
 		<script>
+			/// === Global Variables === ///
 			const autocomplete = require("autocompleter");
 			const { exec } = require("child_process");
 			const COMPLETION_BOX_DICT = "COMPLETION_BOX_DICT";
 
-			const completionBoxDict = JSON.parse(
+			/// === Mutating Variables === ///
+			let completionBoxDict = JSON.parse(
 				window.localStorage.getItem(COMPLETION_BOX_DICT) || "[]"
 			);
 
+			/// === Get Elements === ///
 			const input = document.getElementById("completion-box__input");
 			const form = document.getElementById("completion-box__form");
+			const textArea = document.getElementById("completion-box__db-data");
+			const dbButton = document.getElementById("completion-box__db-button");
 
+			/// === Initial States === ///
+			textArea.style.display = "none";
+
+			/// === Update DB Functions === ///
+			function handleDbButton() {
+				if (textArea.style.display !== "none") {
+					completionBoxDict = JSON.parse(
+						textArea.value ||
+							window.localStorage.getItem(COMPLETION_BOX_DICT) ||
+							"[]"
+					);
+					window.localStorage.setItem(
+						COMPLETION_BOX_DICT,
+						JSON.stringify(completionBoxDict)
+					);
+					textArea.value = JSON.stringify([]);
+					textArea.style.display = "none";
+					input.style.display = "block";
+					dbButton.innerText = "Show DB";
+				} else {
+					textArea.value = JSON.stringify(completionBoxDict);
+					textArea.style.display = "block";
+					input.style.display = "none";
+					dbButton.innerText = "Save DB";
+				}
+			}
+
+			/// === Completion Box Functions === ///
 			function typeItem(itemLabel) {
 				exec(
 					`xdotool keydown alt key Tab key Left key Left; sleep 0.3; xdotool keyup alt && sleep 0.3 && xdotool type "${itemLabel}"`,
@@ -51,7 +92,6 @@
 					-1
 				) {
 					completionBoxDict.push({
-						label: input.value,
 						value: input.value,
 					});
 				}
@@ -71,12 +111,12 @@
 				fetch: function (text, update) {
 					text = text.toLowerCase();
 					const suggestions = completionBoxDict.filter((n) =>
-						n.label.toLowerCase().startsWith(text)
+						n.value.toLowerCase().startsWith(text)
 					);
-					update(suggestions);
+					update(suggestions.map((item) => ({ ...item, label: item.value })));
 				},
 				onSelect: function (item) {
-					input.value = item.label;
+					input.value = item.value;
 					console.log(item);
 				},
 			});

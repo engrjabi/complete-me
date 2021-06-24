@@ -43,8 +43,8 @@ if (!gotTheLock) {
 		const win = new BrowserWindow({
 			title: app.name,
 			show: false,
-			width: 200,
-			height: 200,
+			width: 400,
+			height: 300,
 			webPreferences: {
 				nodeIntegration: true,
 				contextIsolation: false,
