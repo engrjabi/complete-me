@@ -12,8 +12,9 @@
 					Show DB
 				</button>
 			</div>
-			<div>
+			<div id="completion-box__db-data-container">
 				<textarea id="completion-box__db-data"></textarea>
+				<div>Find: (^[^\s]+[^\n]+$) Replace: {"value": "$1"},</div>
 			</div>
 			<form id="completion-box__form">
 				<input type="text" id="completion-box__input" autofocus />
@@ -35,14 +36,17 @@
 			const input = document.getElementById("completion-box__input");
 			const form = document.getElementById("completion-box__form");
 			const textArea = document.getElementById("completion-box__db-data");
+			const textAreaContainer = document.getElementById(
+				"completion-box__db-data-container"
+			);
 			const dbButton = document.getElementById("completion-box__db-button");
 
 			/// === Initial States === ///
-			textArea.style.display = "none";
+			textAreaContainer.style.display = "none";
 
 			/// === Update DB Functions === ///
 			function handleDbButton() {
-				if (textArea.style.display !== "none") {
+				if (textAreaContainer.style.display !== "none") {
 					completionBoxDict = JSON.parse(
 						textArea.value ||
 							window.localStorage.getItem(COMPLETION_BOX_DICT) ||
@@ -53,12 +57,12 @@
 						JSON.stringify(completionBoxDict)
 					);
 					textArea.value = JSON.stringify([]);
-					textArea.style.display = "none";
+					textAreaContainer.style.display = "none";
 					input.style.display = "block";
 					dbButton.innerText = "Show DB";
 				} else {
 					textArea.value = JSON.stringify(completionBoxDict);
-					textArea.style.display = "block";
+					textAreaContainer.style.display = "block";
 					input.style.display = "none";
 					dbButton.innerText = "Save DB";
 				}
